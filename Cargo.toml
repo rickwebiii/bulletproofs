@@ -41,7 +41,7 @@ rand_chacha = "0.3.1"
 default = ["std"]
 avx2_backend = ["curve25519-dalek/avx2_backend"]
 yoloproofs = []
-std = ["rand", "rand/std", "rand/std_rng", "curve25519-dalek/std", "thiserror", "digest/core-api", "sha3/std"]
+std = ["rand", "rand/std", "rand/std_rng", "thiserror"]
 
 [[test]]
 name = "range_proof"
