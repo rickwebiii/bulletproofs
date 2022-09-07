@@ -149,6 +149,9 @@ impl LinearProof {
         }
     }
 
+    /**
+     * Verify that the linear proof is valid.
+     */
     pub fn verify(
         &self,
         n: usize,

@@ -12,8 +12,8 @@ use curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT;
 use curve25519_dalek::ristretto::RistrettoPoint;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::traits::MultiscalarMul;
-use digest::{ExtendableOutput, Input, XofReader};
-use sha3::{Sha3XofReader, Sha3_512, Shake256};
+use digest::{core_api::XofReaderCoreWrapper, ExtendableOutput, Update, XofReader};
+use sha3::{Sha3_512, Shake256, Shake256ReaderCore};
 
 /// Represents a pair of base points for Pedersen commitments.
 ///
@@ -56,19 +56,18 @@ impl Default for PedersenGens {
 /// orthogonal generators.  The sequence can be deterministically
 /// produced starting with an arbitrary point.
 struct GeneratorsChain {
-    reader: Sha3XofReader,
+    reader: XofReaderCoreWrapper<Shake256ReaderCore>,
 }
 
 impl GeneratorsChain {
     /// Creates a chain of generators, determined by the hash of `label`.
     fn new(label: &[u8]) -> Self {
-        let mut shake = Shake256::default();
-        shake.input(b"GeneratorsChain");
-        shake.input(label);
+        let reader = Shake256::default()
+            .chain(b"GeneratorsChain")
+            .chain(label)
+            .finalize_xof();
 
-        GeneratorsChain {
-            reader: shake.xof_result(),
-        }
+        GeneratorsChain { reader }
     }
 
     /// Advances the reader n times, squeezing and discarding
